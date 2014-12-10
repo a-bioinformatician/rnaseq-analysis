@@ -1,0 +1,47 @@
+
+####################################################################################################
+# Starting pipeline at Mon Dec 08 22:35:04 EST 2014
+# Input files:  null
+# Output Log:  .bpipe/logs/24778.log
+# Stage bamtofastq
+echo "hello test
+
+####################################################################################################
+# Starting pipeline at Mon Dec 08 22:37:33 EST 2014
+# Input files:  null
+# Output Log:  .bpipe/logs/24874.log
+# Stage bamtofastq
+echo "hello test"
+
+
+####################################################################################################
+# Starting pipeline at Mon Dec 08 22:38:45 EST 2014
+# Input files:  null
+# Output Log:  .bpipe/logs/25073.log
+# Stage bamtofastq
+echo "hello test"
+
+
+####################################################################################################
+# Starting pipeline at Mon Dec 08 22:48:26 EST 2014
+# Input files:  null
+# Output Log:  .bpipe/logs/26052.log
+# Stage bamtofastq
+samtools --version
+
+
+####################################################################################################
+# Starting pipeline at Mon Dec 08 22:51:16 EST 2014
+# Input files:  null
+# Output Log:  .bpipe/logs/26250.log
+# Stage bamtofastq
+samtools
+
+
+####################################################################################################
+# Starting pipeline at Mon Dec 08 22:58:26 EST 2014
+# Input files:  null
+# Output Log:  .bpipe/logs/26694.log
+# Stage bamtofastq
+samtools
+
