@@ -1,0 +1,34 @@
+#------------------------------------------------------------------------------
+# Basic RNA-seq analysis pipeline
+#------------------------------------------------------------------------------
+
+include "/ifs/rcgroups/ccgd/rpa4/scripts/bds/utils.bds"
+
+#------------------------------------------------------------------------------
+# Parameters
+#------------------------------------------------------------------------------
+
+string runConfig # A run configuration file
+string paramFiles # A list of parameter files
+
+#------------------------------------------------------------------------------
+# Main
+#------------------------------------------------------------------------------
+
+string[] paramFileList = paramFiles.split(",")
+string{} paramDict = getParams(paramFileList)
+
+string{} dataDict
+if ( runConfig.isEmpty() ) {
+    print("Requires input of a run configuration file with optional parameters and required sample data")
+    exit 1
+}
+else {
+    dataDict = parseRunConfig(runConfig, paramDict)
+}
+
+println(dataDict)
+#------------------------------------------------------------------------------
+# Convert bam format to fastq format
+# Return a stringified list of fastq formatted files
+#------------------------------------------------------------------------------

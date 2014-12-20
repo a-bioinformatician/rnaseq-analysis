@@ -1,0 +1,57 @@
+load "/ifs/rcgroups/ccgd/rpa4/scripts/github_repos/rnaseq-analysis/bpipe/tools.groovy"
+
+def parseFileName(fin, ext) {
+  // Expected file name format <absolute path>/sampleId_laneNumber.bam
+  def fn = new File(fin).getName().split('.' + ext)[0]
+  return [sampleId: fn.split('_')[0], laneNumber: fn.split('_')[1], fullId: fn]
+}
+
+def getOriginalId(fin, ext) {
+    // Assume that the first two fields are set sampleId_laneNumber
+    def fn = new File(fin).getName().split('.' + ext)[0]
+    return fn.split('_')[0] + "_" + fn.split('_')[1]
+}
+
+bamToFastq = {
+    def outPath = parseFileName(input, 'bam')["sampleId"] + "/fastq"
+    def fqOut = outPath + "/" + parseFileName(input, "bam").fullId
+
+    from("bam") produce(fqOut+"_1.fastq.gz", fqOut+"_2.fastq.gz") {
+        exec """
+            $BAMUTIL bam2FastQ --in ${input}.bam --outBase $fqOut
+        """
+
+        multi "gzip $fqOut_1.fastq",
+            "gzip $fqOut_2.fastq",
+            "gzip $fqOut.fastq"
+    }
+}
+
+fastQC = {
+    doc title: "fastQC",
+        desc: """Perform basic QC analysis on raw fastq file.""",
+        constraints: "Paired-end data",
+        author: "Ryan Abo"
+
+    // Params :
+    //  baseDir = absolute path to the root directory of the analysis    
+
+    // In :
+    //  Files :
+    //      1. A list of gzipped fastq files = <path>/<filename>.fastq.gz
+    // Out :
+    //  Path = <baseDir/sampleId/qc/fastqc>
+    //  Files : 
+    //      1. Paired-end read1 fastq file = <filename>_1.fastqc.zip
+    //      2. Paired-end read2 fastq file = <filename>_2.fastqc.zip
+
+    def outPath = parseFileName(input1, 'fastq.gz')["sampleId"] + "/qc/fastqc"
+    def out = outPath + "/" + parseFileName(input, 'bam')['fullId']
+    output.dir = outPath
+    transform(".fastq.gz") to("_fastqc.zip") {
+        exec """
+            $FASTQC -q -t 4 -o $fastqcOut ${inputs}.fastq.gz 
+        """
+    }
+}
+

@@ -1,0 +1,48 @@
+This directory contains the scripts that are used to generate the data
+in the /ifs/rcgroups/ccgd/rpa4/analysis/rnaseq/rnd directory. 
+
+These are manual shell scripts that will generate intermediate data for 
+inputs into subsequent scripts. 
+
+The general conventions that will be followed:
+
+Base directory = /ifs/rcgroups/ccgd/rpa4/analysis/rnaseq/rnd
+
+<base_dir>/<project_dir>/
+    <data>
+        raw/<symlinks or unaligned bam files>
+        sample_list.txt
+    <sample_id>
+        data/<all data files>
+        align/
+            rrna/
+            star/
+        qc/
+            fastqc/
+            rseqc/
+            rnaseqc/
+        exp/
+            rsem/
+            htseq/
+        fusion/
+            prada/
+        snv/
+            gatk/
+
+1. bam2fastq.sh - convert a bam file into paired-end fastq files.
+    Run in batch mode with bam2fastq.batch.sh <project_dir> <comma-delimited sample_ids>
+    Input: <sample_id>_<lane>.bam
+    Output: <base_dir>/<project_dir>/<sample_id>/data/<sample_id>_<lane>_1/2.fq.gz
+
+    Description:
+        - Has an optional cleaning step to do adapter cleaning, low-qual seq trimming, flashing(?)
+
+2.  align_rrna.sh - align reads against human ribosomal RNA.
+    Input: <sample_id>
+    Output: <base_dir>/<project_dir>/<sample_id>/align/rrna/<sample_id>_<lane>_rrna_alignMetrics.txt
+
+3. run_star.sh - 
+    Input:
+    Output:
+
+4. 

@@ -13,12 +13,13 @@
 # path.
 # ----------------------------------------------
 
-STAR='/ifs/rcgroups/ccgd/software/STAR_2.4.0g1/bin/Linux_x86_64_static/STAR'
 REF_BASE='/ifs/rcgroups/ccgd/reference'
 
 SPECIES=$1 # human, mouse
 REF_SRC=$2 # gencode, refseq
 STAR_VER=$3
+
+STAR='/ifs/rcgroups/ccgd/software/STAR_'$STAR_VER'/bin/Linux_x86_64_static/STAR'
 
 # Store the reference files in the CCGD reference directory for the current reference source.
 REF_PATH=$(readlink -f $REF_BASE/$SPECIES/$REF_SRC/current)

@@ -1,0 +1,141 @@
+load "/ifs/rcgroups/ccgd/rpa4/scripts/github_repos/rnaseq-analysis/bpipe/tools.groovy"
+
+def parseFileName(fin, ext) {
+  // Expected file name format <absolute path>/sampleId_laneNumber.bam
+  def fn = new File(fin).getName().split('.' + ext)[0]
+  return [sampleId: fn.split('_')[0], laneNumber: fn.split('_')[1], fullId: fn]
+}
+
+def getOriginalId(fin, ext) {
+    // Assume that the first two fields are set sampleId_laneNumber
+    def fn = new File(fin).getName().split('.' + ext)[0]
+    return fn.split('_')[0] + "_" + fn.split('_')[1]
+}
+
+setupData = {
+  // TODO : Create log file with all configuration variables in project
+  // directory.
+   doc title: "setupData",
+       desc: """Parse the input file name to obtain sampleId, laneId,
+               and fullId.
+               Created Dec. 9, 2014
+            """,
+       constraints: "This expects a single input bam file.",
+       author: "Ryan Abo"
+
+  println(hello)
+  exec "touch $output.txt"
+}
+
+bamToFastq = {
+    doc title: "bamToFastq",
+        desc: """Convert unaligned bam to fastq format. Created 12/9/2014
+              """,
+        constraints: "Paired-end data",
+        author: "Ryan Abo"
+
+    // Params :
+    //  basedir = absolute path to the root directory of the analysis, assumed to be set at runtime with '-d' option
+
+    // In : 
+    //  Files :
+    //      1. Unaligned bam file = <path>/<filename>.bam
+    // Out :
+    //  Path = <basedir/sampleId/fastq>
+    //  Files : 
+    //      1. Paired-end read1 fastq file = <filename>_1.fastq.gz
+    //      2. Paired-end read2 fastq file = <filename>_2.fastq.gz
+
+    def outPath = parseFileName(input, 'bam')["sampleId"] + "/fastq"
+    def fqOut = outPath + "/" + getOriginalId(input, "bam")
+
+    from("bam") produce(fqOut+"_1.fastq.gz", fqOut+"_2.fastq.gz") {
+        exec """
+            $BAMUTIL bam2FastQ --in $input --outBase $fqOut
+        """
+
+        multi "gzip ${fqOut}_1.fastq",
+            "gzip ${fqOut}_2.fastq",
+            "gzip ${fqOut}.fastq"
+    }
+}
+
+fastQC = {
+    doc title: "fastQC",
+        desc: """Perform basic QC analysis on raw fastq file.""",
+        constraints: "Paired-end data",
+        author: "Ryan Abo"
+
+    // Params :
+    //  baseDir = absolute path to the root directory of the analysis    
+
+    // In :
+    //  Files :
+    //      1. A list of gzipped fastq files = <path>/<filename>.fastq.gz
+    // Out :
+    //  Path = <baseDir/sampleId/qc/fastqc>
+    //  Files : 
+    //      1. Paired-end read1 fastq file = <filename>_1.fastqc.zip
+    //      2. Paired-end read2 fastq file = <filename>_2.fastqc.zip
+
+    def outPath = parseFileName(input1, 'fastq.gz')["sampleId"] + "/qc/fastqc"
+    def out = outPath + "/" + parseFileName(input, 'bam')['fullId']
+    output.dir = outPath
+    transform(".fastq.gz") to("_fastqc.zip") {
+        exec """
+            $FASTQC -q -t 4 -o $fastqcOut ${inputs}.fastq.gz 
+        """
+    }
+}
+
+alignRibo = {
+    doc title: "alignRibo",
+        desc: """Align sequences to human ribosomal RNA, remove aligned
+                sequences from file and save new fastq.
+              """,
+        constraints: "Paired-end data",
+        author: "Ryan Abo"
+
+    // Params :
+    //  baseDir = absolute path to the root directory of the analysis    
+
+    // In :
+    //  Files :
+    //      1. A list of gzipped fastq files = <path>/<filename>.fastq.gz
+    // Out :
+    //  Path = <baseDir/sampleId/qc/fastqc>
+    //  Files : 
+    //      1. Paired-end read1 fastq file = <filename>_1.fastq.gz
+    //      2. Paired-end read2 fastq file = <filename>_2.fastq.gz
+
+    def parseDict = parseFileName(input1, "fastq.gz")
+    def outPath = parseDict.sampleId + "/align/ribo"
+    def oId = getOriginalId(input1, "fastq.gz")
+    def fqOut = outPath + "/" + oId + "_noribo"
+    output.dir = outPath
+    produce(fqOut+"_1.fastq.gz", fqOut+"_2.fastq.gz") { 
+        uses(threads:4,GB:4,tempfiles:3) {
+        exec """
+            $BWA/bwa mem -t 4 $humanRiboFasta $inputs | $SAMTOOLS view -Shub - | $SAMTOOLS sort - tmp
+            $SAMTOOLS index tmp.bam
+            $SAMTOOLS flagstat tmp.bam > $getOriginalId.alignRibo.flagstat.txt
+            $SAMTOOLS view -f 12 -hb tmp.bam | $BAMUTIL bam2FastQ --in - --outBase $fqOut
+        """ 
+
+        multi "gzip $fqOut_1.fastq", 
+            "gzip $fqOut_2.fastq",
+            "gzip $fqOut.fastq"
+        }
+    }
+}
+
+test = {
+  exec """
+    echo $input > $output
+  """
+}
+
+// Initial data handling segment
+dataProc = segment {
+    bamToFastq + [fastQC, alignRibo]
+}
