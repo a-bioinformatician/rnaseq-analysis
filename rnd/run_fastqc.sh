@@ -4,7 +4,7 @@
 #$ -V
 #$ -m e
 #$ -M ryanp_abo@dfci.harvard.edu
-#$ -pe pvm 2
+#$ -pe pvm 4
 ###################
 
 # ------------------------------
@@ -14,12 +14,10 @@
 FASTQC='/ifs/rcgroups/ccgd/software/FastQC/fastqc'
 
 # VARIABLES
-FQ_DIR=$1
+FQ_FILE=$1
 OUT_DIR=$2
 LOG_FILE=$3
 
-FQS=($(ls -d $FQ_DIR/*'.fastq.gz'))
-
 mkdir -p $OUT_DIR
-echo $FASTQC -t 4 -o $OUT_DIR $FQS >> $LOG_FILE
-$FASTQC -t 4 -o $OUT_DIR $FQS
+echo $FASTQC -t 4 -o $OUT_DIR $FQ_FILE >> $LOG_FILE
+$FASTQC -t 4 -o $OUT_DIR $FQ_FILE

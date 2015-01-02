@@ -13,13 +13,15 @@
 
 RSEM='/ifs/rcgroups/ccgd/rpa4/software/rsem-1.2.19'
 
-SAMPLE_NAME=$1
-SAMPLE_BAM=$2 # PATH TO TRANSCRIPTOME-ALIGNED BAM FILE.
-RSEM_REF_PATH=$3 # PATH TO RSEM REFERENCE DIRECTORY WITH BASE_NAME
-OUT=$4
+IN_BAM=$1
+OUT_BASENAME=$2
+OUT_DIR=$3
+REF_PATH=$4 # PATH TO RSEM REFERENCE DIRECTORY WITH BASE_NAME
+LOG_FILE=$5
 
-mkdir -p $OUT
-cd $OUT
+mkdir -p $OUT_DIR
+cd $OUT_DIR
 
-echo $RSEM/rsem-calculate-expression -p 8 --bam --paired-end $SAMPLE_BAM $RSEM_REF_PATH $SAMPLE_NAME
-$RSEM/rsem-calculate-expression -p 8 --bam --paired-end $SAMPLE_BAM $RSEM_REF_PATH $SAMPLE_NAME
+echo $RSEM/rsem-calculate-expression -p 8 --bam --paired-end $IN_BAM $REF_PATH $OUT_BASENAME
+$RSEM/rsem-calculate-expression -p 8 --bam --paired-end $IN_BAM $REF_PATH $OUT_BASENAME
+# $RSEM/rsem-calculate-expression -p 8 --calc-ci --bam --paired-end $IN_BAM $REF_PATH $OUT_BASENAME

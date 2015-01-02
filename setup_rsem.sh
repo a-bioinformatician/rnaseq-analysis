@@ -8,8 +8,7 @@
 ###################
 
 # ------------------------------
-# Script to prepare RSEM reference
-# files. This can be run once and 
+# Script to prepare RSEM reference files. This can be run once and 
 # reused.
 # ------------------------------
 
@@ -20,6 +19,7 @@ REF_BASE='/ifs/rcgroups/ccgd/reference'
 SPECIES=$1 # human, mouse
 REF_SRC=$2 # gencode, refseq
 RSEM_VER=$3
+LOG_FILE=$4
 
 # Store the reference files in the CCGD reference directory for the current reference source.
 REF_PATH=$(readlink -f $REF_BASE/$SPECIES/$REF_SRC/current)
@@ -30,5 +30,7 @@ OUT=$REF_PATH/transcriptome/rsem_$RSEM_VER
 mkdir -p $OUT
 cd $OUT
 
-echo $RSEM/rsem-prepare-reference --bowtie-path $BOWTIE --gtf $GTF $REF_FASTA $OUT 
-$RSEM/rsem-prepare-reference --bowtie-path $BOWTIE --gtf $GTF $REF_FASTA $OUT 
+OUT_BASENAME=$(basename $GTF '.gtf')
+
+echo $RSEM/rsem-prepare-reference --bowtie-path $BOWTIE --gtf $GTF $REF_FASTA $OUT/$OUT_BASENAME > $LOG_FILE
+$RSEM/rsem-prepare-reference --bowtie-path $BOWTIE --gtf $GTF $REF_FASTA $OUT/$OUT_BASENAME

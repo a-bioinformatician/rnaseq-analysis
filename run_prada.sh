@@ -65,9 +65,9 @@ do
   samtools view -bS -o 'read'$READ'.bam' temp/'read'$READ'.sam'
   rm $OUT_DIR/temp/'read'$READ'.sam'
 
-  echo samtools sort -n -m 1000000000 'read'$READ'.bam' 'read'$READ'.sorted'
-  samtools sort -n -m 1000000000 'read'$READ'.bam' 'read'$READ'.sorted'
-  rm 'read'$READ'.bam'
+  #echo samtools sort -n -m 1000000000 'read'$READ'.bam' 'read'$READ'.sorted'
+  #samtools sort -n -m 1000000000 'read'$READ'.bam' 'read'$READ'.sorted'
+  #rm 'read'$READ'.bam'
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

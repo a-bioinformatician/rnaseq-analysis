@@ -4,7 +4,7 @@
 #$ -V
 #$ -m e
 #$ -M ryanp_abo@dfci.harvard.edu
-#$ -pe pvm 2
+#$ -pe pvm 3
 ###################
 
 # -----------------------------------------------
@@ -19,25 +19,14 @@ REF_SRC=$3
 mkdir -p $OUT_DIR
 
 cd $OUT_DIR
-if [ -e $OUT_PREFIX'_'$REF_SRC'_genome.bam' ] ; then
-    rm $OUT_PREFIX'_'$REF_SRC'_genome.bam'
-    rm $OUT_PREFIX'_'$REF_SRC'_trx.bam'
-fi
 
-# mv $OUT_PREFIX'_'$REF_SRC'_Aligned.sortedByCoord.out.bam' $OUT_PREFIX'.'$REF_SRC'_genome.bam'
-# mv $OUT_PREFIX'_'$REF_SRC'_Aligned.toTranscriptome.out.bam' $OUT_PREFIX'.'$REF_SRC'_trx.bam'
-
-if [ -e $OUT_PREFIX'_Aligned.sortedByCoord.out.bam' ] ; then
-    mv $OUT_PREFIX'_Aligned.sortedByCoord.out.bam' $OUT_PREFIX'.'$REF_SRC'_genome.bam'
-fi
-
-if [ -e $OUT_PREFIX'_Aligned.toTranscriptome.out.bam' ] ; then
-    mv $OUT_PREFIX'_Aligned.toTranscriptome.out.bam' $OUT_PREFIX'.'$REF_SRC'_trx.bam'
-fi
-
+# Index genome bam
 $samtools sort $OUT_PREFIX'.'$REF_SRC'_genome.bam' $OUT_PREFIX'.'$REF_SRC'_genome.sorted'
-echo $OUT_PREFIX'.'$REF_SRC'_genome.sorted.bam' $OUT_PREFIX'.'$REF_SRC'_genome.bam'
-#mv $OUT_PREFIX'.'$REF_SRC'_genome.sorted.bam' $OUT_PREFIX'.'$REF_SRC'_genome.bam'
-$samtools sort $OUT_PREFIX'.'$REF_SRC'_trx.bam' $OUT_PREFIX'.'$REF_SRC'_trx.sorted'
-echo $OUT_PREFIX'.'$REF_SRC'_trx.sorted.bam' $OUT_PREFIX'.'$REF_SRC'_trx.bam'
-#mv $OUT_PREFIX'.'$REF_SRC'_trx.sorted.bam' $OUT_PREFIX'.'$REF_SRC'_trx.bam'
+mv $OUT_PREFIX'.'$REF_SRC'_genome.sorted.bam' $OUT_PREFIX'.'$REF_SRC'_genome.bam'
+$samtools index $OUT_PREFIX'.'$REF_SRC'_genome.bam'
+
+# Convert chimeric sam file into sorted and indexed bam file
+echo $samtools view -Shub $OUT_PREFIX'_'$REF_SRC'_Chimeric.out.sam' | $samtools sort - $OUT_PREFIX'_'$REF_SRC'_Chimeric.out' 
+$samtools view -Shub $OUT_PREFIX'_'$REF_SRC'_Chimeric.out.sam' | $samtools sort - $OUT_PREFIX'_'$REF_SRC'_Chimeric.out' 
+$samtools index $OUT_PREFIX'_'$REF_SRC'_Chimeric.out.bam' 
+rm $OUT_PREFIX'_'$REF_SRC'_Chimeric.out.sam'

@@ -265,3 +265,11 @@ rseqc = {
 dataProc = segment {
     bamToFastq + [fastQC, alignRibo]
 }
+
+/*
+downsample -> fastq -> star -> rsem, htseq
+
+fastq -> clean -> fasqc, star -> qc
+
+fastq -> 
+*/

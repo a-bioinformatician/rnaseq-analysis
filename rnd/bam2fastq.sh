@@ -2,7 +2,6 @@
 #$ -S /bin/sh
 #$ -cwd
 #$ -V
-#$ -h_vmem=500M
 #$ -m e
 #$ -M ryanp_abo@dfci.harvard.edu
 #$ -pe pvm 2

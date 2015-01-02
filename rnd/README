@@ -45,4 +45,47 @@ Base directory = /ifs/rcgroups/ccgd/rpa4/analysis/rnaseq/rnd
     Input:
     Output:
 
-4. 
+All subanalysis pipeline
+bam2fastq -> align_rrna, fastqc, star(gencode, refseq) -> post_star_cleanup, mark_dups(*genome) -> merge_bams(*trx, *genome) -> rnaseqc, rseqc, hsmetrics, rsem(gencode, refseq), htseq(gencode, refseq, targeted), gatk 
+
+STAR 
+    - trx - needs to stay sorted by name
+    - genome - sorted by position
+
+bam2fastq 
+    -i
+    -o
+    -g
+
+align_rrna
+    -i
+    -o 
+
+DD (dedup) subanalysis pipeline
+
+
+TODO:
+- all post_star_cleanup for mrna_1v, opv2 (running), exome
+- mark_dups for mrna_1v, opv2, exome
+- merge_bams for mrna_1v (only pass lanes for genome, merged for trx), opv2, exome
+- run_rsem for mrna_1v, opv2, exome
+- run_htseq all
+- run_prada all
+
+- generate refseq star reference and rsem reference
+- create gtf from exome target and opv2 for htseq
+- star with refseq (mrna_1v use merged lane fastq files), post_star, merge_bams (places in data/align directory), rsem
+
+- setup dedup pipeline
+
+STAGE:
+mrna_1v - lane1 - bam2fq, fastqc (running), align_rrna (running), star (done)
+          lane2 - bam2fq, fastqc (running), align_rrna (running), star (done)
+          merge - bam2fq, star (running)
+
+opv2 - lane2 - bam2fq, fastqc (redo), align_rrna, star (redo H2122-1,H2122-2,H2122-R1,H2122-R2*)
+
+total - all - bam2fq, fastqc (redo), align_rrna, star, post_star, mark_dups, merge_bams, rsem (running)
+        dd - bam2fq (?), star (?), post_star (?), rsem (?), htseq (?)
+
+exome - lane2 - bam2fq, fastqc (running), align_rrna, star
